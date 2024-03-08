@@ -1,5 +1,6 @@
 package server
 
+/*
 import (
 	"bufio"
 	"encoding/json"
@@ -12,6 +13,14 @@ import (
 type Server struct {
 	host string
 	port string
+}
+
+// Room ...
+type Room struct {
+	id      string
+	name    string
+	admin   *Client
+	clients map[string]*Client
 }
 
 // Client ...
@@ -77,6 +86,9 @@ func (client *Client) handleRequest() {
 			continue
 		}
 		switch jsonMessage["type"] {
+		case "createRoom":
+
+			break
 		// case "input" from clients, send to admin for processing
 		case "input":
 			jsonStructure := map[string]interface{}{
@@ -96,3 +108,4 @@ func (client *Client) handleRequest() {
 		//client.conn.Write([]byte("Message received." + string(message) + "\n"))
 	}
 }
+*/
