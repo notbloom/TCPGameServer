@@ -2,7 +2,9 @@ package server
 
 import (
 	"bufio"
+	"errors"
 	"github.com/google/uuid"
+	"io"
 	"log"
 	"net"
 	"strings"
@@ -62,7 +64,9 @@ func (client *Client) Read() {
 		str, err := client.reader.ReadString('\n')
 		if err != nil {
 			log.Println(err)
-			break
+			if !errors.Is(err, io.EOF) {
+				break
+			}
 		}
 		message := NewMessage(time.Now(), client, strings.TrimSuffix(str, "\n"))
 		client.incoming <- message
