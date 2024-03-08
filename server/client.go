@@ -2,6 +2,7 @@ package server
 
 import (
 	"bufio"
+	"github.com/google/uuid"
 	"log"
 	"net"
 	"strings"
@@ -12,6 +13,7 @@ import (
 // channels, and stores some information about the client's state, including
 // their current name and chat room.
 type Client struct {
+	uid      string
 	name     string
 	chatRoom *ChatRoom
 	incoming chan *Message
@@ -27,8 +29,10 @@ type Client struct {
 func NewClient(conn net.Conn) *Client {
 	writer := bufio.NewWriter(conn)
 	reader := bufio.NewReader(conn)
+	clientID := uuid.New()
 
 	client := &Client{
+		uid:      clientID.String(),
 		name:     CLIENT_NAME,
 		chatRoom: nil,
 		incoming: make(chan *Message),

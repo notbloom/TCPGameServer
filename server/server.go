@@ -27,6 +27,7 @@ const (
 	CMD_SUFFIX = "\n"
 	CMD_FORMAT = "{\"type\":\"%s\", \"content\": %s}" + CMD_SUFFIX
 
+	TYPE_CONNECT       = "online"
 	TYPE_CREATE        = "create"
 	TYPE_JOIN          = "join"
 	TYPE_PLAYER_JOINED = "playerJoined"

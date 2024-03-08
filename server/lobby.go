@@ -136,6 +136,7 @@ func (lobby *Lobby) Parse(message *Message) {
 		name := jsonMessage["content"].(map[string]interface{})["code"].(string)
 		fmt.Printf("%s", name)
 		lobby.JoinRoom(message.client, name)
+	case jsonMessage["type"] == TYPE_CONNECT:
 
 	case strings.HasPrefix(message.text, CMD_LIST):
 		lobby.ListChatRooms(message.client)
