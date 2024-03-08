@@ -19,7 +19,7 @@ type ContentJoin struct {
 
 // Leav
 const (
-	CONN_PORT = ":3333"
+	CONN_PORT = ":8080"
 	CONN_TYPE = "tcp"
 
 	MAX_CLIENTS = 10
