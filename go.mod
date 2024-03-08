@@ -1,6 +1,6 @@
 module github.com/notbloom/wsGameServer
 
-go 1.21.0
+go 1.22.0
 
 require (
 	github.com/albinj12/unique-id v1.1.0
