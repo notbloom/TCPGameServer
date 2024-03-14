@@ -13,22 +13,22 @@ import (
 // connected clients, and currently created chat rooms.
 type Lobby struct {
 	clients   []*Client
-	chatRooms map[string]*ChatRoom
+	chatRooms map[string]*Room
 	incoming  chan *Message
 	join      chan *Client
 	leave     chan *Client
-	delete    chan *ChatRoom
+	delete    chan *Room
 }
 
 // Creates a lobby which beings listening over its channels.
 func NewLobby() *Lobby {
 	lobby := &Lobby{
 		clients:   make([]*Client, 0),
-		chatRooms: make(map[string]*ChatRoom),
+		chatRooms: make(map[string]*Room),
 		incoming:  make(chan *Message),
 		join:      make(chan *Client),
 		leave:     make(chan *Client),
-		delete:    make(chan *ChatRoom),
+		delete:    make(chan *Room),
 	}
 	lobby.Listen()
 	return lobby
@@ -87,7 +87,7 @@ func (lobby *Lobby) Leave(client *Client) {
 
 // Checks if the a channel has expired. If it has, the chat room is deleted.
 // Otherwise, a signal is sent to the delete channel at its new expiry time.
-func (lobby *Lobby) DeleteChatRoom(chatRoom *ChatRoom) {
+func (lobby *Lobby) DeleteChatRoom(chatRoom *Room) {
 	if chatRoom.expiry.After(time.Now()) {
 		go func() {
 			time.Sleep(chatRoom.expiry.Sub(time.Now()))

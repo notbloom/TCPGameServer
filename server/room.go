@@ -5,10 +5,10 @@ import (
 	"time"
 )
 
-// A ChatRoom contains the chat's name, a list of the currently connected
+// A Room contains the chat's name, a list of the currently connected
 // clients, a history of the messages broadcast to the users in the channel,
-// and the current time at which the ChatRoom will expire.
-type ChatRoom struct {
+// and the current time at which the Room will expire.
+type Room struct {
 	name     string
 	clients  []*Client
 	messages []string
@@ -17,8 +17,8 @@ type ChatRoom struct {
 
 // Creates an empty chat room with the given name, and sets its expiry time to
 // the current time + EXPIRY_TIME.
-func NewChatRoom(name string) *ChatRoom {
-	return &ChatRoom{
+func NewChatRoom(name string) *Room {
+	return &Room{
 		name:     name,
 		clients:  make([]*Client, 0),
 		messages: make([]string, 0),
@@ -26,44 +26,44 @@ func NewChatRoom(name string) *ChatRoom {
 	}
 }
 
-// Adds the given Client to the ChatRoom, and sends them all messages that have
-// that have been sent since the creation of the ChatRoom.
-func (chatRoom *ChatRoom) Join(client *Client) {
-	client.chatRoom = chatRoom
-	//for _, message := range chatRoom.messages {
+// Adds the given Client to the Room, and sends them all messages that have
+// that have been sent since the creation of the Room.
+func (room *Room) Join(client *Client) {
+	client.chatRoom = room
+	//for _, message := range room.messages {
 	//	client.outgoing <- message
 	//}
-	chatRoom.clients = append(chatRoom.clients, client)
-	chatRoom.Broadcast(fmt.Sprintf(RSP_PLAYER_JOINED, client.name))
+	room.clients = append(room.clients, client)
+	room.Broadcast(fmt.Sprintf(RSP_PLAYER_JOINED, client.name))
 }
 
-// Removes the given Client from the ChatRoom.
-func (chatRoom *ChatRoom) Leave(client *Client) {
-	chatRoom.Broadcast(fmt.Sprintf(RSP_PLAYER_LEFT, client.name))
-	for i, otherClient := range chatRoom.clients {
+// Removes the given Client from the Room.
+func (room *Room) Leave(client *Client) {
+	room.Broadcast(fmt.Sprintf(RSP_PLAYER_LEFT, client.name))
+	for i, otherClient := range room.clients {
 		if client == otherClient {
-			chatRoom.clients = append(chatRoom.clients[:i], chatRoom.clients[i+1:]...)
+			room.clients = append(room.clients[:i], room.clients[i+1:]...)
 			break
 		}
 	}
 	client.chatRoom = nil
 }
 
-// Sends the given message to all Clients currently in the ChatRoom.
-func (chatRoom *ChatRoom) Broadcast(message string) {
-	chatRoom.expiry = time.Now().Add(EXPIRY_TIME)
-	chatRoom.messages = append(chatRoom.messages, message)
-	for _, client := range chatRoom.clients {
+// Sends the given message to all Clients currently in the Room.
+func (room *Room) Broadcast(message string) {
+	room.expiry = time.Now().Add(EXPIRY_TIME)
+	room.messages = append(room.messages, message)
+	for _, client := range room.clients {
 		client.outgoing <- message + "\n"
 	}
 }
 
 // Notifies the clients within the chat room that it is being deleted, and kicks
 // them back into the lobby.
-func (chatRoom *ChatRoom) Delete() {
+func (room *Room) Delete() {
 	//notify of deletion?
-	chatRoom.Broadcast(NOTICE_ROOM_DELETE)
-	for _, client := range chatRoom.clients {
+	room.Broadcast(NOTICE_ROOM_DELETE)
+	for _, client := range room.clients {
 		client.chatRoom = nil
 	}
 }

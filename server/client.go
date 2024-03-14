@@ -15,7 +15,7 @@ import (
 type Client struct {
 	uid      string
 	name     string
-	chatRoom *ChatRoom
+	chatRoom *Room
 	incoming chan *Message
 	outgoing chan string
 	conn     net.Conn
