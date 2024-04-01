@@ -10,9 +10,24 @@ admin player sends all state updates to the server for relaying
 
 
 
+Admin - <- input Jugué la carta 3 de mi mani
+
+````mermaid
+sequenceDiagram
+    Client->>+Server: Connect
+    Server->>-Client: Message : Connected
+````
 
 ##  login  - Login Request
-First request from client to server.
+First request from client to server. Should be done after connecting
+so the server can reconnect if it finds the client id.
+````mermaid
+sequenceDiagram
+    Client->>Server: Login Request
+    Note over Client,Server: Username,ClientID
+    Server->>Client: Login Response
+    Server-->>Client: Reconnect 
+````
 ```json
 {
   "type": "login",
@@ -29,6 +44,7 @@ Login Response:
   "content": {
     "username": "John-1", // checks uniqueness? 
     "clientid": "[09aZ]" //if set check for reconnect
+    "seat": 0-9 // seat number
   }
 }
 ```

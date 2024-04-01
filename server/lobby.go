@@ -123,8 +123,10 @@ func (lobby *Lobby) Parse(message *Message) {
 		lobby.SendMessage(message)
 		println("Message received: " + message.text)
 	case jsonMessage["type"] == TYPE_INPUT:
-		lobby.SendMessage(message)
+
+		lobby.SendInput(message.client, jsonMessage["content"].(map[string]interface{}))
 		println("Message received: " + message.text)
+
 	case jsonMessage["type"] == TYPE_CREATE:
 		name, err := uniqueid.Generateid("a", 4)
 		if err != nil {
@@ -137,6 +139,11 @@ func (lobby *Lobby) Parse(message *Message) {
 		fmt.Printf("%s", name)
 		lobby.JoinRoom(message.client, name)
 	case jsonMessage["type"] == TYPE_CONNECT:
+
+	case jsonMessage["type"] == TYPE_LOGIN:
+		name := jsonMessage["content"].(map[string]interface{})["code"].(string)
+		clientid := jsonMessage["content"].(map[string]interface{})["clientid"].(string)
+		lobby.Login(message.client, name, clientid)
 
 	case strings.HasPrefix(message.text, CMD_LIST):
 		lobby.ListChatRooms(message.client)
@@ -153,6 +160,37 @@ func (lobby *Lobby) Parse(message *Message) {
 	case strings.HasPrefix(message.text, CMD_QUIT):
 		message.client.Quit()
 	}
+}
+func (lobby *Lobby) Login(client *Client, username string, clientid string) {
+
+	client.name = username
+	//if the client uniqueid returned is blank or different from the one given in the message reconnect
+	if client.uid == "" || client.uid != clientid {
+		//client.outgoing <- ERROR_RECONNECT
+		return
+	}
+	//if the client unique id already exists reconnect
+	for _, c := range lobby.clients {
+		if c.uid == clientid {
+			//c.outgoing <- MSG_RECONNECT
+			return
+		}
+	}
+	client.uid = clientid
+}
+func (lobby *Lobby) SendInput(client *Client, content map[string]interface{}) {
+
+	if client.chatRoom == nil {
+		log.Println("client tried to send message in lobby")
+		return
+	}
+
+	rsp := InputResponse{Type: "input", Seat: client.seat, Content: content}
+	//RSP to json to string
+	rspJson, _ := json.Marshal(rsp)
+
+	client.chatRoom.Broadcast(string(rspJson))
+	log.Println("Relayed input from client:" + string(rspJson))
 }
 
 // Attempts to send the given message to the client's current chat room. If they
@@ -179,6 +217,7 @@ func (lobby *Lobby) CreateChatRoom(client *Client, name string) {
 		return
 	}
 	chatRoom := NewChatRoom(name)
+	chatRoom.admin = client
 	lobby.chatRooms[name] = chatRoom
 	go func() {
 		time.Sleep(EXPIRY_TIME)

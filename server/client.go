@@ -15,6 +15,7 @@ import (
 type Client struct {
 	uid      string
 	name     string
+	seat     int
 	chatRoom *Room
 	incoming chan *Message
 	outgoing chan string

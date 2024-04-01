@@ -10,6 +10,20 @@ type JSONMessage struct {
 	Content map[string]any `json:"content"`
 }
 
+type InputResponse struct {
+	Type    string         `json:"type"`
+	Seat    int            `json:"seat"`
+	Content map[string]any `json:"content"`
+}
+
+type LoginMessage struct {
+	Type    string `json:"type"`
+	Content struct {
+		Username string `json:"username"`
+		Clientid string `json:"clientid"`
+	} `json:"content"`
+}
+
 // Join room Content
 type ContentJoin struct {
 	//Name     string `json:"name"`
@@ -27,7 +41,9 @@ const (
 	CMD_SUFFIX = "\n"
 	CMD_FORMAT = "{\"type\":\"%s\", \"content\": %s}" + CMD_SUFFIX
 
-	TYPE_CONNECT       = "online"
+	TYPE_CONNECT       = "connected"
+	TYPE_DISCONNECT    = "disconnected"
+	TYPE_LOGIN         = "login"
 	TYPE_CREATE        = "create"
 	TYPE_JOIN          = "join"
 	TYPE_PLAYER_JOINED = "playerJoined"
@@ -35,10 +51,11 @@ const (
 	TYPE_INPUT         = "input"
 
 	RSP_CREATE        = "{\"type\":\"" + TYPE_CREATE + "\", \"content\": { \"code\": \"%s\" }}" + CMD_SUFFIX
-	RSP_PLAYER_JOINED = "{\"type\":\"" + TYPE_PLAYER_JOINED + "\", \"content\": { \"name\": \"%s\" }}" + CMD_SUFFIX
-	RSP_PLAYER_LEFT   = "{\"type\":\"" + TYPE_PLAYER_LEFT + "\", \"content\": { \"name\": \"%s\" }}" + CMD_SUFFIX
+	RSP_PLAYER_JOINED = "{\"type\":\"" + TYPE_PLAYER_JOINED + "\", \"content\": { \"username\": \"%s\", \"seat\": %d }}" + CMD_SUFFIX
+	RSP_PLAYER_LEFT   = "{\"type\":\"" + TYPE_PLAYER_LEFT + "\", \"content\": { \"username\": \"%s\", \"seat\": %d }}" + CMD_SUFFIX
 
-	CMD_PREFIX = ""
+	RSP_PLAYER_INPUT = "{\"type\":\"" + TYPE_INPUT + "\", \"content\": { \"seat\": %d, \"content\": \"%s\" }}" + CMD_SUFFIX
+	CMD_PREFIX       = ""
 
 	CMD_LIST  = CMD_PREFIX + "list"
 	CMD_JOIN  = CMD_PREFIX + "join"
@@ -63,7 +80,7 @@ const (
 	NOTICE_ROOM_DELETE     = NOTICE_PREFIX + "Chat room is inactive and being deleted.\n"
 	NOTICE_PERSONAL_CREATE = "{\"type\":\"roomCreated\", \"content\": {\"name\":\"%s\"}}\n"
 	NOTICE_PERSONAL_NAME   = NOTICE_PREFIX + "Changed name to \"\".\n"
-	MSG_CONNECT            = "{\"type\":\"online\"}\n"
+	MSG_CONNECT            = "{\"type\":\"" + TYPE_CONNECT + "\"}\n"
 	MSG_FULL               = "Server is full. Please try reconnecting later."
 
 	EXPIRY_TIME time.Duration = 7 * 24 * time.Hour

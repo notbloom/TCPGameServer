@@ -1,0 +1,43 @@
+syntax = "proto3";
+package trebol;
+
+enum RequestOrResponse {
+  REQUEST = 0;
+  RESPONSE = 1;
+}
+
+enum MessageType {
+  MESSAGE_TYPE_ONLINE = 0;
+  MESSAGE_TYPE_OFFLINE = 1;
+  MESSAGE_TYPE_TIMEOUT = 2;
+
+  MESSAGE_TYPE_CREATE = 3;
+  MESSAGE_TYPE_JOIN = 4;
+  MESSAGE_TYPE_PLAYER_JOINED = 5;
+  MESSAGE_TYPE_PLAYER_LEFT = 6;
+  MESSAGE_TYPE_INPUT = 7;
+  MESSAGE_TYPE_ACTION = 8;
+}
+
+message ResponseOnline {
+  string username = 1;
+  string clientid = 2;
+}
+
+message ResponseLogin {
+  string username = 1;
+  string clientid = 2;
+  int32 seat = 3;
+}
+message ResponseLogout{
+  string username = 1;
+  string clientid = 2;
+}
+message Request {
+  MessageType type = 1;
+  oneof content {
+    ResponseLogin response_login = 2;
+    ResponseLogout response_logout = 3;
+    //Map<string, int32> ResponseInput = 4;
+  }
+}
