@@ -126,7 +126,9 @@ func (lobby *Lobby) Parse(message *Message) {
 
 		lobby.SendInput(message.client, jsonMessage["content"].(map[string]interface{}))
 		println("Message received: " + message.text)
-
+	case jsonMessage["type"] == TYPE_BROADCAST:
+		message.client.chatRoom.Broadcast(message.client, message.text)
+		println("Message received: " + message.text)
 	case jsonMessage["type"] == TYPE_CREATE:
 		name, err := uniqueid.Generateid("a", 4)
 		if err != nil {
@@ -141,7 +143,7 @@ func (lobby *Lobby) Parse(message *Message) {
 	case jsonMessage["type"] == TYPE_CONNECT:
 
 	case jsonMessage["type"] == TYPE_LOGIN:
-		name := jsonMessage["content"].(map[string]interface{})["code"].(string)
+		name := jsonMessage["content"].(map[string]interface{})["name"].(string)
 		clientid := jsonMessage["content"].(map[string]interface{})["clientid"].(string)
 		lobby.Login(message.client, name, clientid)
 
@@ -189,7 +191,8 @@ func (lobby *Lobby) SendInput(client *Client, content map[string]interface{}) {
 	//RSP to json to string
 	rspJson, _ := json.Marshal(rsp)
 
-	client.chatRoom.Broadcast(string(rspJson))
+	//TODO SEND ONLY TO ADMIN
+	client.chatRoom.ServerBroadcast(string(rspJson))
 	log.Println("Relayed input from client:" + string(rspJson))
 }
 
@@ -202,7 +205,8 @@ func (lobby *Lobby) SendMessage(message *Message) {
 		log.Println("client tried to send message in lobby")
 		return
 	}
-	message.client.chatRoom.Broadcast(message.text)
+	//TODO SEND ONLY TO ADMIN?
+	message.client.chatRoom.ServerBroadcast(message.text)
 	log.Println("client sent message" + message.text)
 	//message.client.chatRoom.Broadcast(message.String())
 	//log.Println("client sent message" + message.String())
@@ -263,7 +267,8 @@ func (lobby *Lobby) ChangeName(client *Client, name string) {
 	if client.chatRoom == nil {
 		client.outgoing <- fmt.Sprintf(NOTICE_PERSONAL_NAME, name)
 	} else {
-		client.chatRoom.Broadcast(fmt.Sprintf(NOTICE_ROOM_NAME, client.name, name))
+		//TODO CHECK THIS ONE IS SERVER BROADCAST?
+		client.chatRoom.ServerBroadcast(fmt.Sprintf(NOTICE_ROOM_NAME, client.name, name))
 	}
 	client.name = name
 	log.Println("client changed their name")

@@ -49,6 +49,7 @@ const (
 	TYPE_PLAYER_JOINED = "playerJoined"
 	TYPE_PLAYER_LEFT   = "playerLeft"
 	TYPE_INPUT         = "input"
+	TYPE_BROADCAST     = "broadcast"
 
 	RSP_CREATE        = "{\"type\":\"" + TYPE_CREATE + "\", \"content\": { \"code\": \"%s\" }}" + CMD_SUFFIX
 	RSP_PLAYER_JOINED = "{\"type\":\"" + TYPE_PLAYER_JOINED + "\", \"content\": { \"username\": \"%s\", \"seat\": %d }}" + CMD_SUFFIX

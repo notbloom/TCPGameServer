@@ -45,12 +45,12 @@ func (room *Room) Join(client *Client) {
 	//}
 
 	room.clients = append(room.clients, client)
-	room.Broadcast(fmt.Sprintf(RSP_PLAYER_JOINED, client.name, client.seat))
+	room.ServerBroadcast(fmt.Sprintf(RSP_PLAYER_JOINED, client.name, client.seat))
 }
 
 // Removes the given Client from the Room.
 func (room *Room) Leave(client *Client) {
-	room.Broadcast(fmt.Sprintf(RSP_PLAYER_LEFT, client.name, client.seat))
+	room.ServerBroadcast(fmt.Sprintf(RSP_PLAYER_LEFT, client.name, client.seat))
 	for i, otherClient := range room.clients {
 		if client == otherClient {
 			room.clients = append(room.clients[:i], room.clients[i+1:]...)
@@ -59,9 +59,21 @@ func (room *Room) Leave(client *Client) {
 	}
 	client.chatRoom = nil
 }
+func (room *Room) Broadcast(client *Client, message string) {
+	room.expiry = time.Now().Add(EXPIRY_TIME)
+	if !client.isAdmin {
+		//TODO remove client sending admin messages
+		fmt.Println("client tried to send admin message")
+		return
+	}
+	room.messages = append(room.messages, message)
+	for _, client := range room.clients {
+		client.outgoing <- message + "\n"
+	}
+}
 
 // Sends the given message to all Clients currently in the Room.
-func (room *Room) Broadcast(message string) {
+func (room *Room) ServerBroadcast(message string) {
 	room.expiry = time.Now().Add(EXPIRY_TIME)
 	room.messages = append(room.messages, message)
 	for _, client := range room.clients {
@@ -73,7 +85,7 @@ func (room *Room) Broadcast(message string) {
 // them back into the lobby.
 func (room *Room) Delete() {
 	//notify of deletion?
-	room.Broadcast(NOTICE_ROOM_DELETE)
+	room.ServerBroadcast(NOTICE_ROOM_DELETE)
 	for _, client := range room.clients {
 		client.chatRoom = nil
 	}
